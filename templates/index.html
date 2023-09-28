@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+
+      * {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --font-mono: 'IBM Plex Mono', monospace;
+        --font-sans: 'IBM Plex Sans', sans-serif;
+      }
+
+      body,
+      html {
+        font-family: var(--font-sans);
+        margin: 0;
+        overflow: hidden;
+        padding: 0.5rem;
+        display: flex;
+        gap: 4px;
+        width: 100%;
+        max-height: 100%;
+      }
+
+      body > div:nth-child(1) {
+        flex: 50%;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-width: 50%;
+      }
+
+      button,
+      input,
+      [contenteditable] {
+        outline: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+        margin: 0.5rem;
+      }
+
+      #output {
+        overflow: auto;
+        height: 100%;
+      }
+
+      #code {
+        background: #ddd;
+        font-family: var(--font-mono);
+        font-size: 1.1rem;
+        margin: 0;
+        padding: 2rem;
+        resize: none;
+        border: 0;
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        overflow: auto;
+      }
+
+      #tabs {
+        align-items: flex-end;
+        display: flex;
+        gap: 4px;
+        justify-content: space-between;
+      }
+
+      #tabs .left {
+        display: flex;
+        gap: 4px;
+        align-items: flex-end;
+      }
+
+      #tabs button:not(#run) {
+        background-color: #eee;
+        cursor: pointer;
+        border: 0;
+        font-family: var(--font-sans);
+        font-size: 1.1rem;
+        padding: 12px 24px;
+      }
+
+      #tabs .left button.active {
+        background-color: #ddd !important;
+      }
+
+      #run {
+        background-color: transparent;
+        border: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-style: italic;
+        cursor: pointer;
+        padding-bottom: 12px;
+        transition: all 0.1s;
+        margin-right: 0.5rem;
+      }
+
+      #run:hover {
+        color: #09f;
+      }
+
+      #grid-container {
+        align-self: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #grid {
+        min-width: calc(50vw - 1rem - 4px);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      #grid > div {
+        display: flex;
+        gap: 2px;
+      }
+
+      .prose {
+        background-color: #ddd;
+        padding: 2rem;
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .prose pre,
+      .prose code {
+        font-family: var(--font-mono);
+      }
+
+      .prose pre {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        overflow: auto;
+        width: 100%;
+        padding: 1em 0;
+      }
+
+      .prose img {
+        max-width: 100%;
+      }
+
+      .prose:first-child {
+        margin-top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div id="tabs">
+        <div class="left">
+          <h1><i>lights</i></h1>
+          <button class="active" onclick="codeTab()">code</button>
+          <button onclick="docsTab()">docs</button>
+          <button onclick="upload()">upload</button>
+        </div>
+        <button id="run">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-play">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+        </button>
+      </div>
+      <div id="output">
+        <textarea contenteditable spellcheck="false" id="code">
+# Why did I write a whole parser for this? I don't really know
+# Let's make this wrap around!
+var rows = 50
+var cols = 20
+
+define Cell { x, y, live }
+
+# Exercise: try setting an initial seed!
+function seed() {
+    var cells = []
+    for x through (0, rows) {
+        for y through (0, cols) {
+            cells.push(Cell(x: x, y: y, live: random(0, 1)))
+        }
+    }
+    return cells
+}
+
+var cells = seed()
+
+function getNeighbors(cell) {
+
+}
+
+function loop() {
+    # This loop runs every iteration and must be in every program
+    for i through (0, cells.length()) {
+        var cell = cells[i]
+        var neighbors = getNeighbors(cells)
+        if (cell.live) {
+            if (neighbors.length() < 2 or neighbors.length() > 3) {
+                # Any live cell with fewer than two live neighbors dies, as if by underpopulation
+                # Any live cell with more than three live neighbors dies, as if by overpopulation
+                cell.live = false
+            }
+        } elif (not cell.live and neighbors == 3) {
+            # Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction
+            cell.live = true
+        }
+
+        if (cell.live) {
+            # Now draw the cell if it's alive!
+            var color = Color(r: 0, g: 255, b: 0)
+            Canvas.fill(x, y, color)
+        } else {
+            # If it's dead, turn the cell off
+            Canvas.erase(x, y)
+        }
+    }
+}
+</textarea
+        >
+      </div>
+    </div>
+    <div id="grid-container">
+      <div id="grid"></div>
+    </div>
+    <script>
+      const exampleCode = `# Why did I write a whole parser for this? I don't really know
+# Let's make this wrap around!
+var rows = 50
+var cols = 20
+
+define Cell { x, y, live }
+
+# Exercise: try setting an initial seed!
+function seed() {
+    var cells = []
+    for x through (0, rows) {
+        for y through (0, cols) {
+            cells.push(Cell(x: x, y: y, live: random(0, 1)))
+        }
+    }
+    return cells
+}
+
+var cells = seed()
+
+function getNeighbors(cell) {
+
+}
+
+function loop() {
+    # This loop runs every iteration and must be in every program
+    for i through (0, cells.length()) {
+        var cell = cells[i]
+        var neighbors = getNeighbors(cells)
+        if (cell.live) {
+            if (neighbors.length() < 2 or neighbors.length() > 3) {
+                # Any live cell with fewer than two live neighbors dies, as if by underpopulation
+                # Any live cell with more than three live neighbors dies, as if by overpopulation
+                cell.live = false
+            }
+        } elif (not cell.live and neighbors == 3) {
+            # Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction
+            cell.live = true
+        }
+
+        if (cell.live) {
+            # Now draw the cell if it's alive!
+            var color = Color(r: 0, g: 255, b: 0)
+            Canvas.fill(x, y, color)
+        } else {
+            # If it's dead, turn the cell off
+            Canvas.erase(x, y)
+        }
+    }
+}`
+
+      const SYNTAX = {}
+
+      class Cell {
+        // TODO: Replace with shadow DOM element
+        constructor(x, y, size, color = '#ddd') {
+          this.x = x
+          this.y = y
+          this.size = size
+          this.color = color
+        }
+
+        get element() {
+          let td = document.createElement('div')
+          td.style.width = `${this.size}px`
+          td.style.height = `${this.size}px`
+          td.style.backgroundColor = this.color
+          return td
+        }
+      }
+
+      let state = {
+        tab: 'code',
+        tabs: 0,
+        tabChange: 2,
+        docs: '',
+        cells: [],
+        code: exampleCode,
+        keymap: {}
+      }
+
+      const init = (width, height, gap = 2) => {
+        const grid = document.getElementById('grid')
+        const gridWidth = grid.offsetWidth
+        let cellWidth = gridWidth / width - gap
+        let cellHeight = window.innerHeight / height - gap
+        let cellSize = Math.min(cellWidth, cellHeight)
+        for (let y = 0; y < height; y++) {
+          let tr = document.createElement('div')
+          tr.style.height = `${cellSize}px`
+          for (let x = 0; x < width; x++) {
+            let td = new Cell(x, y, cellSize)
+            tr.appendChild(td.element)
+            state.cells.push(td)
+          }
+          grid.appendChild(tr)
+        }
+      }
+
+      const ce = code => {
+        let pre = document.createElement('pre')
+        pre.innerText = code
+        pre.contentEditable = true
+        pre.spellcheck = false
+        pre.id = 'code'
+        return pre
+      }
+
+      const adjustTabs = () => {
+        document.querySelectorAll('.left button').forEach(button => {
+          if (button.innerText === state.tab) button.classList.add('active')
+          else if (button.classList.contains('active'))
+            button.classList.remove('active')
+        })
+      }
+
+      const codeTab = () => {
+        if (state.tab !== 'code') {
+          const pre = ce(state.code)
+          document.getElementById('output').replaceChildren(pre)
+          state.tab = 'code'
+          adjustTabs()
+        }
+      }
+
+      const docsTab = async () => {
+        let docs = state.docs
+        if (!docs.length) {
+          const res = await fetch(
+            'https://raw.githubusercontent.com/jianmin-chen/arson/main/README.md'
+          )
+          if (res.ok) docs = await res.text()
+        }
+        const prose = document.createElement('div')
+        prose.classList.add('prose')
+        prose.innerHTML = marked.parse(docs)
+        document.getElementById('output').replaceChildren(prose)
+        state.tab = 'docs'
+        adjustTabs()
+      }
+
+      const run = click => {
+        if (click) {
+        } else {
+          if (state.keymap[16] && state.keymap[13]) {
+            console.log('true')
+            state.keymap = {}
+          }
+        }
+      }
+
+      const upload = async () => {
+        // Pick port
+        /*
+        if ('serial' in navigator) {
+          const filters = [{ usbVendorId: 0x2e8a, usbProductId: 10 }]
+          const port = await navigator.serial.requestPort({ filters })
+          console.log(port)
+        }
+        */
+        const form = new FormData()
+        form.append('code', state.code)
+        fetch('/flash', {
+          body: form,
+          method: 'POST'
+        })
+          .then(res => res.json())
+          .then(json => {})
+      }
+
+      window.onload = () => {
+        loadPyodide()
+        init(64, 64)
+
+        document
+          .getElementById('code')
+          .addEventListener('keydown', function (event) {
+            let start = this.selectionStart
+            let end = this.selectionEnd
+
+            // Emulate tabbing
+            if (event.key === 'Tab') {
+              event.preventDefault()
+              // Set textarea value to text before caret + tab + text after caret
+              this.value = `${this.value.substring(
+                0,
+                start
+              )}    ${this.value.substring(end)}`
+              this.selectionStart = this.selectionEnd = start + state.tabChange
+              state.tabs += state.tabChange
+            } else if (event.key === 'Enter') {
+              event.preventDefault()
+              // Set textarea value to text before caret + newline + current # of tabs + text after caret
+              this.value = `${this.value.substring(0, start)}\n${' '.repeat(
+                state.tabs
+              )}${this.value.substring(end)}`
+              this.selectionStart = this.selectionEnd =
+                start + '\n'.length + state.tabs
+            } else if (event.key === 'Backspace') {
+              event.preventDefault()
+              let prev = this.value.substring(start - state.tabs, start)
+              if (state.tabs && prev === ' '.repeat(state.tabs)) {
+                // Go back a tab
+                state.tabs -= state.tabChange
+                this.value = `${this.value.substring(
+                  0,
+                  start - state.tabChange
+                )}${this.value.substring(end)}`
+                this.selectionStart = this.selectionEnd =
+                  start - state.tabChange
+              } else if (prev != undefined) {
+                // Go back as usual
+                this.value = `${this.value.substring(
+                  0,
+                  start - 1
+                )}${this.value.substring(end)}`
+                this.selectionStart = this.selectionEnd = start - 1
+              }
+            }
+
+            // Update state code
+            state.code = event.target.value
+          })
+      }
+    </script>
+  </body>
+</html>
