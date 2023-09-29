@@ -15,6 +15,7 @@ from lightast import (
     new_binop,
     new_attr,
     new_chain,
+    new_call,
 )
 from sys import exit
 
@@ -104,7 +105,7 @@ def simple(parser):
             if parser.peek_token_type() != TOKEN_TYPE["RightBrace"]:
                 parser.eat(TOKEN_TYPE["Comma"])
         parser.eat(TOKEN_TYPE["RightBrace"])
-        return new_dict(obj)
+        return new_struct(obj)
     else:
         raise Exception("Expected expression but got " + kind)
 
@@ -153,6 +154,8 @@ def call(parser):
                     chain.append(expr(parser))
                 parser.eat(TOKEN_TYPE["RightBracket"])
         return new_chain(res, chain)
+    elif parser.peek_token_type() == TOKEN_TYPE["Period"]:
+        parser.eat(TOKEN_TYPE["Period"])
     return res
 
 

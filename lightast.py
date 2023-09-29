@@ -12,9 +12,7 @@ AST_TYPE = {
     "Else": "Else",
     "While": "While",
     "For": "For",
-    "Attr": "Attr",
     "Call": "Call",
-    "Chain": "Chain",
 }
 
 
@@ -83,11 +81,3 @@ def new_binop(left, right, op, wrapped=False):
 
 def new_call(args):
     return {"type": AST_TYPE["Call"], "args": args}
-
-
-def new_attr(attr):
-    return {"type": AST_TYPE["Attr"], "name": attr}
-
-
-def new_chain(name, chain):
-    return {"type": AST_TYPE["Chain"], "name": name, "chaiin": chain}

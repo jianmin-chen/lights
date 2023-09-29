@@ -166,7 +166,7 @@
           <button onclick="docsTab()">docs</button>
           <button onclick="upload()">upload</button>
         </div>
-        <button id="run">
+        <button id="run" onclick="run(true)">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -184,53 +184,15 @@
       </div>
       <div id="output">
         <textarea contenteditable spellcheck="false" id="code">
-# Why did I write a whole parser for this? I don't really know
-# Let's make this wrap around!
-var rows = 50
-var cols = 20
-
-define Cell { x, y, live }
-
-# Exercise: try setting an initial seed!
-function seed() {
-    var cells = []
-    for x through (0, rows) {
-        for y through (0, cols) {
-            cells.push(Cell(x: x, y: y, live: random(0, 1)))
-        }
-    }
-    return cells
-}
-
-var cells = seed()
-
-function getNeighbors(cell) {
-
-}
+# These variables must be passed as configuration somewhere throughout your program
+var rows = 64
+var cols = 64
 
 function loop() {
     # This loop runs every iteration and must be in every program
-    for i through (0, cells.length()) {
-        var cell = cells[i]
-        var neighbors = getNeighbors(cells)
-        if (cell.live) {
-            if (neighbors.length() < 2 or neighbors.length() > 3) {
-                # Any live cell with fewer than two live neighbors dies, as if by underpopulation
-                # Any live cell with more than three live neighbors dies, as if by overpopulation
-                cell.live = false
-            }
-        } elif (not cell.live and neighbors == 3) {
-            # Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction
-            cell.live = true
-        }
-
-        if (cell.live) {
-            # Now draw the cell if it's alive!
-            var color = Color(r: 0, g: 255, b: 0)
-            Canvas.fill(x, y, color)
-        } else {
-            # If it's dead, turn the cell off
-            Canvas.erase(x, y)
+    for y through (0, cols) {
+        for x through (0, rows) {
+            Canvas.fill(x, y, Color(r: 255, g: 0, b: 0))
         }
     }
 }
@@ -242,56 +204,19 @@ function loop() {
       <div id="grid"></div>
     </div>
     <script>
-      const exampleCode = `# Why did I write a whole parser for this? I don't really know
-# Let's make this wrap around!
-var rows = 50
-var cols = 20
+      let pyodide
+      const exampleCode = `# These variables must be passed as configuration somewhere throughout your program
+      var rows = 64
+      var cols = 64
 
-define Cell { x, y, live }
-
-# Exercise: try setting an initial seed!
-function seed() {
-    var cells = []
-    for x through (0, rows) {
-        for y through (0, cols) {
-            cells.push(Cell(x: x, y: y, live: random(0, 1)))
-        }
-    }
-    return cells
-}
-
-var cells = seed()
-
-function getNeighbors(cell) {
-
-}
-
-function loop() {
-    # This loop runs every iteration and must be in every program
-    for i through (0, cells.length()) {
-        var cell = cells[i]
-        var neighbors = getNeighbors(cells)
-        if (cell.live) {
-            if (neighbors.length() < 2 or neighbors.length() > 3) {
-                # Any live cell with fewer than two live neighbors dies, as if by underpopulation
-                # Any live cell with more than three live neighbors dies, as if by overpopulation
-                cell.live = false
-            }
-        } elif (not cell.live and neighbors == 3) {
-            # Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction
-            cell.live = true
-        }
-
-        if (cell.live) {
-            # Now draw the cell if it's alive!
-            var color = Color(r: 0, g: 255, b: 0)
-            Canvas.fill(x, y, color)
-        } else {
-            # If it's dead, turn the cell off
-            Canvas.erase(x, y)
-        }
-    }
-}`
+      function loop() {
+          # This loop runs every iteration and must be in every program
+          for y through (0, cols) {
+              for x through (0, rows) {
+                  Canvas.fill(x, y, Color(r: 255, g: 0, b: 0))
+              }
+          }
+      }`
 
       const SYNTAX = {}
 
@@ -383,8 +308,18 @@ function loop() {
         adjustTabs()
       }
 
-      const run = click => {
+      const run = async click => {
         if (click) {
+          const form = new FormData()
+          form.append('code', state.code)
+          fetch('/flash', {
+            body: form,
+            method: 'POST'
+          })
+            .then(res => res.json())
+            .then(json => {
+              console.log(json)
+            })
         } else {
           if (state.keymap[16] && state.keymap[13]) {
             console.log('true')
@@ -395,13 +330,12 @@ function loop() {
 
       const upload = async () => {
         // Pick port
-        /*
         if ('serial' in navigator) {
           const filters = [{ usbVendorId: 0x2e8a, usbProductId: 10 }]
           const port = await navigator.serial.requestPort({ filters })
           console.log(port)
         }
-        */
+        /*
         const form = new FormData()
         form.append('code', state.code)
         fetch('/flash', {
@@ -410,10 +344,11 @@ function loop() {
         })
           .then(res => res.json())
           .then(json => {})
+          */
       }
 
       window.onload = () => {
-        loadPyodide()
+        pyodide = loadPyodide()
         init(64, 64)
 
         document

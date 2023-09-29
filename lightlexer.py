@@ -189,7 +189,7 @@ def scan_token(lexer):
         while lexer.peek() != "\n" and lexer.peek() != "\0":
             lexer.advance()
         lexer.line += 1
-    elif char == "\n":
+    elif char == "\n" or char == "\r":
         lexer.line += 1
     elif char == " ":
         return
