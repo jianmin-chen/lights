@@ -1,0 +1,1 @@
+Going to design a PCB from scratch (and solder it too! Unfortunately) as well as a frame from scratch. Frame will be designed with OnShape and then laser cut with wood. There are two variations of the frame - one designed for a 64 by 64 [Adafruit Neopixel grid](), and one designed for the custom PCB.

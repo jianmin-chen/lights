@@ -1,5 +1,5 @@
 from lightast import AST_TYPE
-from lightbuiltins import builtins, Array, Dict
+from lightbuiltins import builtins, Array, Struct
 from copy import deepcopy
 from pprint import pformat
 from sys import exit

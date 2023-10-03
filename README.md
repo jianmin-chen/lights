@@ -2,6 +2,8 @@
 
 A programming language designed to work with a custom grid of lights, to make programming art to hang on the hall involving LEDs really easy.
 
+Everything is from scratch! (But we do provide options for working with Adafruit Neopixels.)
+
 ## Syntax
 
 Let's take a look at an example program:

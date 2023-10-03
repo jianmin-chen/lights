@@ -35,16 +35,16 @@ class Array(Builtin):
 
     def __repr__(self):
         return pformat(self.items)
+    
 
-
-class Dict(Builtin):
+class Struct(Builtin):
     def __init__(self, obj):
         super().__init__()
         self.obj = obj
 
     def _get(self, key):
         return self.obj[key]
-
+    
     def update(self, key, value):
         self.obj[key] = value
 
@@ -52,17 +52,11 @@ class Dict(Builtin):
         return pformat(self.obj)
 
 
-def load(ask):
-    # Wrapper for input
-    return input(ask)
-
-
 def random(min, max):
     return randint(min, max)
 
 
 builtins = {
-    "load": load,
     "random": random,
     "int": int,
     "float": float,

@@ -18,18 +18,24 @@ def index():
 def flash():
     data = request.form
     if data.get("code"):
-        # Code was provided, so run it
-        source = data.get("code")
-        lexer = Lexer(source)
-        scan_tokens(lexer)
-        if DEBUG:
-            with open("lexer.out", "w") as f:
-                f.write(dumps(lexer.tokens, indent=4))
-        parser = Parser(lexer.tokens)
-        ast = program(parser)
-        # Now that we have the AST, what do we do now?
-        print(ast)
-        return ast
+        try:
+            # Code was provided, so run it
+            source = data.get("code")
+            lexer = Lexer(source)
+            scan_tokens(lexer)
+            if DEBUG:
+                with open("lexer.out", "w") as f:
+                    f.write(dumps(lexer.tokens, indent=4))
+            parser = Parser(lexer.tokens)
+            ast = program(parser)
+            print(ast)
+            if DEBUG:
+                with open("ast.out", "w") as f:
+                    f.write(dumps(ast, indent=4))
+            # Now that we have the AST, write to where CircuitPython reads
+            return {"success": True, "ast": ast}
+        except Exception as e:
+            return {"success": False, "reason": str(e)}
 
 
 if __name__ == "__main__":

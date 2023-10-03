@@ -13,11 +13,10 @@ from lightast import (
     new_string,
     new_bool,
     new_binop,
-    new_attr,
-    new_chain,
     new_call,
+    new_chain,
+    new_struct,
 )
-from sys import exit
 
 
 class Parser:
@@ -130,32 +129,27 @@ def is_op(token):
 
 def call(parser):
     res = simple(parser)
-    if (
-        parser.peek_token_type() == TOKEN_TYPE["LeftParen"]
-        or parser.peek_token_type() == TOKEN_TYPE["LeftBracket"]
-    ):
+    chain_symbols = [
+        TOKEN_TYPE["LeftParen"],
+        TOKEN_TYPE["LeftBracket"],
+        TOKEN_TYPE["Period"],
+    ]
+    if parser.peek_token_type() in chain_symbols:
         chain = []
-        while (
-            parser.peek_token_type() == TOKEN_TYPE["LeftParen"]
-            or parser.peek_token_type() == TOKEN_TYPE["LeftBracket"]
-        ):
+        while parser.peek_token_type() in chain_symbols:
             if parser.peek_token_type() == TOKEN_TYPE["LeftParen"]:
                 parser.eat(TOKEN_TYPE["LeftParen"])
                 args = expr_list(parser)
                 parser.eat(TOKEN_TYPE["RightParen"])
                 chain.append(new_call(args))
             else:
-                parser.eat(TOKEN_TYPE["LeftBracket"])
-                if parser.peek_token_type() == TOKEN_TYPE["Period"]:
-                    parser.eat(TOKEN_TYPE["Period"])
-                    id = parser.eat(parser.peek_token_type())
-                    chain.append(new_attr(id["value"]))
-                else:
-                    chain.append(expr(parser))
-                parser.eat(TOKEN_TYPE["RightBracket"])
+                kind = parser.eat(
+                    parser.peek_token_type()
+                )  # Can be [ or . for attribute
+                chain.append(expr(parser))
+                if kind == TOKEN_TYPE["LeftBracket"]:
+                    parser.eat(TOKEN_TYPE["RightBracket"])
         return new_chain(res, chain)
-    elif parser.peek_token_type() == TOKEN_TYPE["Period"]:
-        parser.eat(TOKEN_TYPE["Period"])
     return res
 
 

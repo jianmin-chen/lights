@@ -192,7 +192,7 @@ function loop() {
     # This loop runs every iteration and must be in every program
     for y through (0, cols) {
         for x through (0, rows) {
-            Canvas.fill(x, y, Color(r: 255, g: 0, b: 0))
+            Canvas.fill(x, y, Color(255, 0, 0))
         }
     }
 }
@@ -213,7 +213,7 @@ function loop() {
           # This loop runs every iteration and must be in every program
           for y through (0, cols) {
               for x through (0, rows) {
-                  Canvas.fill(x, y, Color(r: 255, g: 0, b: 0))
+                  Canvas.fill(x, y, Color(255, 0, 0))
               }
           }
       }`
@@ -296,7 +296,7 @@ function loop() {
         let docs = state.docs
         if (!docs.length) {
           const res = await fetch(
-            'https://raw.githubusercontent.com/jianmin-chen/arson/main/README.md'
+            'https://raw.githubusercontent.com/jianmin-chen/lights/main/README.md'
           )
           if (res.ok) docs = await res.text()
         }
