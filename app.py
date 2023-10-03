@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 from lightlexer import Lexer, scan_tokens
 from lightparser import Parser, program
 from lighteval import run
-from json import dumps
+from json import dumps, loads
 
 DEBUG = True
 
@@ -12,6 +12,12 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/ast", methods=["GET"])
+def ast():
+    with open("parser.out", "r") as f:
+        return loads(f.read())
 
 
 @app.route("/flash", methods=["POST"])
@@ -28,7 +34,6 @@ def flash():
                     f.write(dumps(lexer.tokens, indent=4))
             parser = Parser(lexer.tokens)
             ast = program(parser)
-            print(ast)
             if DEBUG:
                 with open("ast.out", "w") as f:
                     f.write(dumps(ast, indent=4))
