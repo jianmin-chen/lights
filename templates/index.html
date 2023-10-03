@@ -318,7 +318,9 @@ function loop() {
           })
             .then(res => res.json())
             .then(json => {
-              console.log(json)
+              if (json.success) {
+                // Start running given AST
+              }
             })
         } else {
           if (state.keymap[16] && state.keymap[13]) {
